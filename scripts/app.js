@@ -206,24 +206,24 @@ APP.Main = (function() {
       return;
 
     var storyDetails = $('#sd-' + id);
-    var left = 0;
+    
+    // Find out where it currently is.
+    var mainPosition = main.getBoundingClientRect();
+    var storyDetailsPosition = storyDetails.getBoundingClientRect();
+    var target = mainPosition.width + 100;
+    var left = storyDetailsPosition.left;
 
     document.body.classList.remove('details-active');
     storyDetails.style.opacity = 0;
 
     function animate () {
 
-      // Find out where it currently is.
-      var mainPosition = main.getBoundingClientRect();
-      var storyDetailsPosition = storyDetails.getBoundingClientRect();
-      var target = mainPosition.width + 100;
-
       // Now figure out where it needs to go.
-      left += (target - storyDetailsPosition.left) * 0.1;
+      left += (target - left) * 0.1;
 
       // Set up the next bit of the animation if there is more to do.
       if (Math.abs(left - target) > 0.5) {
-        setTimeout(animate, 4);
+        requestAnimationFrame(animate);
       } else {
         left = target;
         inDetails = false;
@@ -238,7 +238,7 @@ APP.Main = (function() {
     // every few milliseconds. That's going to keep
     // it all tight. Or maybe we're doing visual changes
     // and they should be in a requestAnimationFrame
-    setTimeout(animate, 4);
+    requestAnimationFrame(animate);
   }
 
   /**
