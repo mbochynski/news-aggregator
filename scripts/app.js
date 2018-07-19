@@ -249,40 +249,68 @@ APP.Main = (function() {
 
     var storyElements = document.querySelectorAll('.story');
 
+    var height = main.offsetHeight;
+    var mainPosition = main.getBoundingClientRect();
+    var SCORE_TOP_OFFSET = 16; // px
+
+    var storiesInView = [];
+
     // It does seem awfully broad to change all the
     // colors every time!
     for (var s = 0; s < storyElements.length; s++) {
 
       var story = storyElements[s];
+      var storyPosition = story.getBoundingClientRect();
+      if (storyPosition.bottom < mainPosition.top) {
+        // fast return for not visible stories
+        continue;
+      }
+      
+      if (storyPosition.top > mainPosition.bottom) {
+        break;
+      }
+
+      storiesInView.push({
+        position: storyPosition,
+        element: story,
+      });
+    }
+
+    storiesInView.forEach(function(storyInView) {
+      var story = storyInView.element;
+      var storyPosition = storyInView.position;
+
       var score = story.querySelector('.story__score');
       var title = story.querySelector('.story__title');
 
-      // Base the scale on the y position of the score.
-      var height = main.offsetHeight;
-      var mainPosition = main.getBoundingClientRect();
-      var scoreLocation = score.getBoundingClientRect().top -
-          document.body.getBoundingClientRect().top;
+      // use existing storyPosition rather than getting new position of score
+      // it should be close enough if we give some offset
+
+      var scoreLocation = storyPosition.top - mainPosition.top + SCORE_TOP_OFFSET;
       var scale = Math.min(1, 1 - (0.05 * ((scoreLocation - 170) / height)));
       var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation - 170) / height)));
 
-      score.style.width = (scale * 40) + 'px';
-      score.style.height = (scale * 40) + 'px';
-      score.style.lineHeight = (scale * 40) + 'px';
+      score.style.transform = 'scale(' + scale + ')';
 
-      // Now figure out how wide it is and use that to saturate it.
-      scoreLocation = score.getBoundingClientRect();
-      var saturation = (100 * ((scoreLocation.width - 38) / 2));
+      // Use scale we already have
+      var saturation = (100 * opacity);
 
       score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
       title.style.opacity = opacity;
-    }
+
+    });
   }
 
   main.addEventListener('scroll', function() {
 
     var header = $('header');
     var headerTitles = header.querySelector('.header__title-wrapper');
-    var scrollTopCapped = Math.min(70, main.scrollTop);
+    var mainPosition = {
+      scrollTop: main.scrollTop,
+      scrollHeight: main.scrollHeight,
+      offsetHeight: main.offsetHeight,
+    };
+    var scrollTopCapped = Math.min(70, mainPosition.scrollTop);
     var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
 
     colorizeAndScaleStories();
@@ -292,15 +320,15 @@ APP.Main = (function() {
     headerTitles.style.transform = scaleString;
 
     // Add a shadow to the header.
-    if (main.scrollTop > 70)
+    if (mainPosition.scrollTop > 70)
       document.body.classList.add('raised');
     else
       document.body.classList.remove('raised');
 
     // Check if we need to load the next batch of stories.
-    var loadThreshold = (main.scrollHeight - main.offsetHeight -
+    var loadThreshold = (mainPosition.scrollHeight - mainPosition.offsetHeight -
         LAZY_LOAD_THRESHOLD);
-    if (main.scrollTop > loadThreshold)
+    if (mainPosition.scrollTop > loadThreshold)
       loadStoryBatch();
   });
 
