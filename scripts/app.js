@@ -62,31 +62,26 @@ APP.Main = (function() {
    * probably in a requestAnimationFrame callback.
    */
   function onStoryData (key, details) {
+    requestAnimationFrame(function() {
+      var story = document.createElement('div');
+      story.setAttribute('id', 's-' + key);
+      story.classList.add('story');
 
-    // This seems odd. Surely we could just select the story
-    // directly rather than looping through all of them.
-    var storyElements = document.querySelectorAll('.story');
+      details.time *= 1000;
+      var html = storyTemplate(details);
+      story.innerHTML = html;
+      story.addEventListener('click', onStoryClick.bind(this, details));
+      story.classList.add('clickable');
 
-    for (var i = 0; i < storyElements.length; i++) {
+      main.appendChild(story);
 
-      if (storyElements[i].getAttribute('id') === 's-' + key) {
+      // Tick down. When zero we can batch in the next load.
+      storyLoadCount--;
 
-        details.time *= 1000;
-        var story = storyElements[i];
-        var html = storyTemplate(details);
-        story.innerHTML = html;
-        story.addEventListener('click', onStoryClick.bind(this, details));
-        story.classList.add('clickable');
-
-        // Tick down. When zero we can batch in the next load.
-        storyLoadCount--;
-
-      }
-    }
-
-    // Colorize on complete.
-    if (storyLoadCount === 0)
-      colorizeAndScaleStories();
+      // Colorize on complete.
+      if (storyLoadCount === 0)
+        colorizeAndScaleStories();
+    });
   }
 
   function onStoryClick(details) {
@@ -313,7 +308,7 @@ APP.Main = (function() {
     }
   }
 
-
+  
   function onScroll() {
     var header = $('header');
     var headerTitles = header.querySelector('.header__title-wrapper');
@@ -363,16 +358,6 @@ APP.Main = (function() {
         return;
 
       var key = String(stories[i]);
-      var story = document.createElement('div');
-      story.setAttribute('id', 's-' + key);
-      story.classList.add('story');
-      story.innerHTML = storyTemplate({
-        title: '...',
-        score: '-',
-        by: '...',
-        time: 0
-      });
-      main.appendChild(story);
 
       APP.Data.getStoryById(stories[i], onStoryData.bind(this, key));
     }
