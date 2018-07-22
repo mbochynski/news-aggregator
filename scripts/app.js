@@ -188,10 +188,6 @@ APP.Main = (function() {
       storyDetails.style.left = left + 'px';
     }
 
-    // We want slick, right, so let's do a setTimeout
-    // every few milliseconds. That's going to keep
-    // it all tight. Or maybe we're doing visual changes
-    // and they should be in a requestAnimationFrame
     requestAnimationFrame(animate);
   }
 
