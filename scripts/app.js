@@ -301,8 +301,20 @@ APP.Main = (function() {
     });
   }
 
-  main.addEventListener('scroll', function() {
+  function debounce(milliseconds, callback) {
+    let timeout = null;
+    return function() {
+      if (!timeout) {
+        timeout = setTimeout(() => {
+          timeout = null;
+          callback();
+        }, milliseconds);
+      }
+    }
+  }
 
+
+  function onScroll() {
     var header = $('header');
     var headerTitles = header.querySelector('.header__title-wrapper');
     var mainPosition = {
@@ -330,7 +342,12 @@ APP.Main = (function() {
         LAZY_LOAD_THRESHOLD);
     if (mainPosition.scrollTop > loadThreshold)
       loadStoryBatch();
-  });
+  };
+  
+  // TODO
+  // Debouncing works ok for colorize but header behaves strange.
+  // Maybe debounce just colorizeAndScale?
+  main.addEventListener('scroll', debounce(300, onScroll));
 
   function loadStoryBatch() {
 
