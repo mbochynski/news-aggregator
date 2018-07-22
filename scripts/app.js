@@ -117,7 +117,6 @@ APP.Main = (function() {
       storyDetails.classList.add('story-details');
       storyDetails.innerHTML = storyDetailsHtml;
 
-      document.body.appendChild(storyDetails);
 
       commentsElement = storyDetails.querySelector('.js-comments');
       storyHeader = storyDetails.querySelector('.js-header');
@@ -152,6 +151,8 @@ APP.Main = (function() {
               localeData);
         });
       }
+      
+      document.body.appendChild(storyDetails);
     }
 
   }
