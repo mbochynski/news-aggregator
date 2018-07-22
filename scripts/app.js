@@ -250,8 +250,6 @@ APP.Main = (function() {
 
     var storiesInView = [];
 
-    // It does seem awfully broad to change all the
-    // colors every time!
     for (var s = 0; s < storyElements.length; s++) {
 
       var story = storyElements[s];
