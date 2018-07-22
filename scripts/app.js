@@ -220,15 +220,9 @@ APP.Main = (function() {
         inDetails = false;
       }
 
-      // And update the styles. Wait, is this a read-write cycle?
-      // I hope I don't trigger a forced synchronous layout!
       storyDetails.style.left = left + 'px';
     }
 
-    // We want slick, right, so let's do a setTimeout
-    // every few milliseconds. That's going to keep
-    // it all tight. Or maybe we're doing visual changes
-    // and they should be in a requestAnimationFrame
     requestAnimationFrame(animate);
   }
 
